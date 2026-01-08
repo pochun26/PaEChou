@@ -1,4 +1,4 @@
-const gids = [23945032, 50201461, 1774779729, 1635616029];
+const gids = [23945032, 50201461, 1635616029];
 const sheetId = '1aeKhOsSwHf5mZ5lA0nQuTppWUdiGcqOXoYmHV2KXL8s';
 // Google Sheets CSV 導出 URL 格式
 function getCsvUrl(gid) {
@@ -126,44 +126,49 @@ Promise.all(
     
     // 找出预测数据
     const predictionGids = {
-      23945032: '八強',
-      50201461: '四強',
-      1774779729: '冠軍'
+      23945032: ['八強'],
+      50201461: ['四強', '冠軍']
     };
     
     // 存储每个人的预测和分数
     const userScores = {};
     
     // 处理每个预测阶段
-    Object.entries(predictionGids).forEach(([gid, stage]) => {
+    Object.entries(predictionGids).forEach(([gid, stages]) => {
       const result = results.find(r => r.gid === parseInt(gid));
       if (!result || !result.success) {
-        console.warn(`無法獲取 ${stage} 預測數據`);
+        console.warn(`無法獲取 GID ${gid} 預測數據`);
         return;
       }
       
       const predictions = parseCSV(result.csv);
-      const correctOptions = answers[stage] || [];
       
-      predictions.forEach(row => {
-        const email = row['Email Address'];
-        const timestamp = row['Timestamp'];
-        const predictedOptions = parseOptions(row[stage]);
+      // 处理该 gid 的每个阶段
+      stages.forEach(stage => {
+        const correctOptions = answers[stage] || [];
         
-        if (!userScores[email]) {
-          userScores[email] = {
-            email,
-            score: 0,
-            totalTimestamp: 0
-          };
-        }
-        
-        // 计算匹配数量
-        const matches = countMatches(predictedOptions, correctOptions);
-        userScores[email].score += matches;
-        
-        // 累加时间戳
-        userScores[email].totalTimestamp += parseTimestamp(timestamp);
+        predictions.forEach(row => {
+          const email = row['Email Address'];
+          const timestamp = row['Timestamp'];
+          const predictedOptions = parseOptions(row[stage]);
+          
+          if (!userScores[email]) {
+            userScores[email] = {
+              email,
+              score: 0,
+              totalTimestamp: 0
+            };
+          }
+          
+          // 计算匹配数量
+          const matches = countMatches(predictedOptions, correctOptions);
+          userScores[email].score += matches;
+          
+          // 累加时间戳（只累加一次，使用第一次的时间戳）
+          if (userScores[email].totalTimestamp === 0) {
+            userScores[email].totalTimestamp = parseTimestamp(timestamp);
+          }
+        });
       });
     });
     
