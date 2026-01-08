@@ -183,39 +183,100 @@ Promise.all(
     });
     
     // 显示正确答案
-    let answersHTML = '<div class="answers-section"><h2>📋 比賽結果</h2><div class="answers-grid">';
+    let answersHTML = `
+      <div class="glass-effect rounded-2xl p-6 md:p-8 shadow-2xl card-hover fade-in">
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 flex items-center">
+          <span class="mr-3">📋</span> 比賽結果
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+    `;
+    
     Object.entries(answers).forEach(([stage, options]) => {
+      const stageClass = stage.includes('八') ? 'eight' : stage.includes('四') ? 'four' : 'champion';
       answersHTML += `
-        <div class="answer-item">
-          <div class="stage">${stage}</div>
-          <div class="options">${options.join('<br>')}</div>
+        <div class="stage-card ${stageClass} rounded-lg p-5 card-hover">
+          <div class="font-bold text-lg md:text-xl mb-3 text-gray-700">${stage}</div>
+          <div class="text-gray-600 space-y-1 text-sm md:text-base">
+            ${options.map(opt => `<div class="flex items-center"><span class="mr-2">✓</span>${opt}</div>`).join('')}
+          </div>
         </div>
       `;
     });
     answersHTML += '</div></div>';
     
     // 显示排行榜
-    let leaderboardHTML = '<div class="leaderboard-section"><h2>🏅 排行榜</h2><div class="leaderboard"><table><thead><tr><th>排名</th><th>分數</th><th>球探</th></tr></thead><tbody>';
+    let leaderboardHTML = `
+      <div class="glass-effect rounded-2xl p-6 md:p-8 shadow-2xl card-hover fade-in">
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 flex items-center">
+          <span class="mr-3">🏅</span> 預測排行榜
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                <th class="px-4 md:px-6 py-4 text-left rounded-tl-lg font-semibold">排名</th>
+                <th class="px-4 md:px-6 py-4 text-left font-semibold">分數</th>
+                <th class="px-4 md:px-6 py-4 text-left rounded-tr-lg font-semibold">球探</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
     
     leaderboard.forEach((user, index) => {
       const rank = index + 1;
-      const rankClass = rank === 1 ? 'first' : rank === 2 ? 'second' : rank === 3 ? 'third' : '';
+      const rankBadgeClass = rank === 1 ? 'first' : rank === 2 ? 'second' : rank === 3 ? 'third' : 'other';
       const username = formatEmail(user.email);
       
+      // 奖牌图标
+      let medalIcon = '';
+      if (rank === 1) {
+        medalIcon = '<span class="text-2xl md:text-3xl mr-2">🥇</span>';
+      } else if (rank === 2) {
+        medalIcon = '<span class="text-2xl md:text-3xl mr-2">🥈</span>';
+      } else if (rank === 3) {
+        medalIcon = '<span class="text-2xl md:text-3xl mr-2">🥉</span>';
+      }
+      
       leaderboardHTML += `
-        <tr>
-          <td class="rank ${rankClass}">${rank}</td>
-          <td class="score">${user.score}</td>
-          <td class="username">${username}</td>
+        <tr class="table-row border-b border-gray-200">
+          <td class="px-4 md:px-6 py-4">
+            <span class="rank-badge ${rankBadgeClass}">${rank}</span>
+          </td>
+          <td class="px-4 md:px-6 py-4">
+            <span class="score-badge">${user.score} 分</span>
+          </td>
+          <td class="px-4 md:px-6 py-4 font-medium text-gray-700 text-lg">
+            <div class="flex items-center">
+              ${medalIcon}
+              <span>${username}</span>
+            </div>
+          </td>
         </tr>
       `;
     });
     
-    leaderboardHTML += '</tbody></table></div></div>';
+    leaderboardHTML += `
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
     
     document.getElementById('output').innerHTML = answersHTML + leaderboardHTML;
   })
   .catch(err => {
     console.error('整體錯誤:', err);
-    document.getElementById('output').innerHTML = `<div class="error">❌ 錯誤: ${err.message}</div>`;
+    document.getElementById('output').innerHTML = `
+      <div class="glass-effect rounded-2xl p-6 shadow-2xl fade-in">
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+          <div class="flex items-center">
+            <span class="text-red-500 text-2xl mr-3">❌</span>
+            <div>
+              <p class="text-red-800 font-semibold text-lg">發生錯誤</p>
+              <p class="text-red-600 mt-1">${err.message}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
   });
