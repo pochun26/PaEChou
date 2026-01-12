@@ -63,9 +63,9 @@
     }
     
     .rank-badge.third {
-      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+      background: linear-gradient(135deg, lab(24.79% 41.01 24.68 / 0.774) 0%, #fecfef 100%);
       color: #fff;
-      box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+      box-shadow: 0 4px 15px rgba(255, 154, 154, 0.4);
     }
     
     .rank-badge.other {
@@ -135,6 +135,47 @@
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 新增的進場 / 呼吸動畫 */
+    .pop-in {
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    .stagger-row {
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    .medal-icon {
+      display: inline-block;
+      animation: medalFloat 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 10px rgba(255, 215, 128, 0.85));
+    }
+
+    .medal-glow {
+      animation: iconGlow 1.6s ease-in-out infinite;
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: translateY(16px) scale(0.98); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(12px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes medalFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-4px) scale(1.06); }
+    }
+
+    @keyframes iconGlow {
+      0%, 100% { text-shadow: 0 0 28px rgb(255, 178, 11); }
+      50% { text-shadow: 0 0 40px rgba(255, 236, 195, 0.345); }
     }
   </style>
 </head>
